@@ -19,6 +19,7 @@
     <div>
         {% for dog in dogs %}
         <div class="dog-card">
+            <img src="{{ dog.img_url }}" alt="Picture of {{ dog.name }}" style="width:100%; border-radius:8px;">
             <h2>{{ dog.name }}</h2>
             <p><strong>Breed:</strong> {{ dog.breed }}</p>
             <p><strong>Age:</strong> {{ dog.age }}</p>

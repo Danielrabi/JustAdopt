@@ -14,7 +14,7 @@ db_config = {
 def get_dogs():
     connection = mysql.connector.connect(**db_config)
     cursor = connection.cursor(dictionary=True)
-    cursor.execute("SELECT id, name, breed, age FROM dogs")
+    cursor.execute("SELECT id, name, breed, age, img_url FROM dogs")
     dogs = cursor.fetchall()
     cursor.close()
     connection.close()
