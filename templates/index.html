@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dog Adoption</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .dog-card {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 8px;
+            display: inline-block;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dogs Available for Adoption</h1>
+    <div>
+        {% for dog in dogs %}
+        <div class="dog-card">
+            <h2>{{ dog.name }}</h2>
+            <p><strong>Breed:</strong> {{ dog.breed }}</p>
+            <p><strong>Age:</strong> {{ dog.age }}</p>
+            <a href="/dog/{{ dog.id }}">See Details</a>
+        </div>
+        </div>
+        {% else %}
+        <p>No dogs available at the moment.</p>
+        {% endfor %}
+    </div>
+</body>
+</html>
