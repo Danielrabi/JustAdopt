@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flask-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flask-app
+  template:
+    metadata:
+      labels:
+        app: flask-app
+    spec:
+      containers:
+        - name: flask-app
+          image: danielrabi/flaskapp:1.0
+          ports:
+            - containerPort: 5000
+          env:
+            - name: DB_HOST
+              value: "mysql"
+            - name: DB_USER
+              value: "flask"
+            - name: DB_PASSWORD
+              value: "flaskpass"
+            - name: DB_NAME
+              value: "dog_list"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: flask-service
+spec:
+  selector:
+    app: flask-app
+  ports:
+    - port: 5000
+      targetPort: 5000
+  type: NodePort   # or LoadBalancer if running on cloud
