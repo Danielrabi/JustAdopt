@@ -42,13 +42,39 @@ spec:
               mountPath: /var/lib/mysql
             - name: mysql-initdb
               mountPath: /docker-entrypoint-initdb.d
+          livenessProbe:
+            exec:
+              command:
+                - mysqladmin
+                - ping
+                - -h
+                - localhost
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - mysql
+                - -h
+                - localhost
+                - -u
+                - root
+                - -ppassword1
+                - -e
+                - SELECT 1
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            timeoutSeconds: 2
+            failureThreshold: 3
       volumes:
         - name: mysql-storage
           persistentVolumeClaim:
             claimName: mysql-pvc
         - name: mysql-initdb
           configMap:
-            name: mysql-initdb 
+            name: mysql-initdb
 ---
 apiVersion: v1
 kind: Service

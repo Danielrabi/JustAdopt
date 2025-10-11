@@ -5,6 +5,11 @@
     <title>Manage Dogs</title>
 </head>
 <body>
+    {% if error %}
+    <div style="background-color: #fee; border: 1px solid #fcc; padding: 15px; margin-bottom: 20px; border-radius: 5px;">
+    <strong>⚠️ Error:</strong> {{ error }}
+    </div>
+    {% endif %}
     <h1>Add a New Dog</h1>
     <form method="post" enctype="multipart/form-data">
         <label>Name:</label><br>
