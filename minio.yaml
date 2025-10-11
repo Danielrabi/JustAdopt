@@ -1,7 +1,19 @@
 apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: minio-pv
+spec:
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath: # Works locally in Minikube
+    path: /mnt/data/minio
+---
+apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
+  name: minio-pvc
 spec:
   accessModes:
     - ReadWriteOnce
@@ -12,77 +24,60 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mysql
+  name: minio
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: mysql
+      app: minio
   template:
     metadata:
       labels:
-        app: mysql
+        app: minio
     spec:
       containers:
-        - name: mysql
-          image: mysql:8.0
+        - name: minio
+          image: minio/minio:latest
+          args: ["server", "/data", "--console-address", ":9001"]  # Added console port
           ports:
-            - containerPort: 3306
+            - containerPort: 9000
+              name: api
+            - containerPort: 9001  # Console UI port (optional, for admin access)
+              name: console
           env:
-            - name: MYSQL_ROOT_PASSWORD
-              value: "password1"
-            - name: MYSQL_DATABASE
-              value: "dog_list"
-            - name: MYSQL_USER
-              value: "flask"
-            - name: MYSQL_PASSWORD
-              value: "flaskpass"
+            - name: MINIO_ROOT_USER  # Changed from MINIO_ACCESS_KEY (deprecated)
+              value: "minioadmin"
+            - name: MINIO_ROOT_PASSWORD  # Changed from MINIO_SECRET_KEY (deprecated)
+              value: "minioadmi123"
           volumeMounts:
-            - name: mysql-storage
-              mountPath: /var/lib/mysql
-            - name: mysql-initdb
-              mountPath: /docker-entrypoint-initdb.d
-          livenessProbe:
-            exec:
-              command:
-                - mysqladmin
-                - ping
-                - -h
-                - localhost
+            - name: data
+              mountPath: /data
+          livenessProbe:  # Added health check
+            httpGet:
+              path: /minio/health/live
+              port: 9000
             initialDelaySeconds: 30
             periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 3
-          readinessProbe:
-            exec:
-              command:
-                - mysql
-                - -h
-                - localhost
-                - -u
-                - root
-                - -ppassword1
-                - -e
-                - SELECT 1
+          readinessProbe:  # Added readiness check
+            httpGet:
+              path: /minio/health/ready
+              port: 9000
             initialDelaySeconds: 10
             periodSeconds: 5
-            timeoutSeconds: 2
-            failureThreshold: 3
       volumes:
-        - name: mysql-storage
+        - name: data
           persistentVolumeClaim:
-            claimName: mysql-pvc
-        - name: mysql-initdb
-          configMap:
-            name: mysql-initdb
+            claimName: minio-pvc
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysql
+  name: minio-service
 spec:
   selector:
-    app: mysql
+    app: minio
   ports:
-    - port: 3306
-      targetPort: 3306
+    - port: 9000
+      targetPort: 9000
+      name: api
+  type: ClusterIP
