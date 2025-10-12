@@ -48,7 +48,7 @@ spec:
             - name: MINIO_ROOT_USER  # Changed from MINIO_ACCESS_KEY (deprecated)
               value: "minioadmin"
             - name: MINIO_ROOT_PASSWORD  # Changed from MINIO_SECRET_KEY (deprecated)
-              value: "minioadmi123"
+              value: "minioadmin123"
           volumeMounts:
             - name: data
               mountPath: /data
