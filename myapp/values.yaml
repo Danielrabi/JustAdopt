@@ -1,0 +1,93 @@
+#flask
+flask:
+  image: danielrabi/flaskapp:1.1.12x
+  replicaCount: 1
+  service:
+    type: NodePort
+    port: 5000
+  env:
+    DB_HOST: mysql  # Will be updated to use Helm template
+    DB_USER: flask
+    DB_PASSWORD: flaskpass
+    DB_NAME: dog_list
+    MINIO_ENDPOINT: minio-service:9000  # Will be updated to use Helm template
+    MINIO_ROOT_USER: minioadmin
+    MINIO_ROOT_PASSWORD: minioadmin123
+  resources: {}
+  livenessProbe:
+    httpGet:
+      path: /
+      port: 5000
+    initialDelaySeconds: 15
+  readinessProbe:
+    httpGet: 
+      path: /
+      port: 5000
+    initialDelaySeconds: 10
+
+#mysql
+mysql:
+  image: mysql:8.0
+  replicaCount: 1
+  service:
+    port: 3306
+  auth:
+    MYSQL_ROOT_PASSWORD: password1
+    MYSQL_DATABASE: dog_list
+    MYSQL_USER: flask
+    MYSQL_PASSWORD: flaskpass
+  persistentVolumeClaim:
+    accessModes: ReadWriteOnce
+    storage: 1Gi
+  livenessProbe:
+    exec:
+      command:
+        - mysqladmin
+        - ping
+        - -h
+        - localhost
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  readinessProbe:
+    exec:
+      command:
+        - mysql
+        - -h
+        - localhost
+        - -u
+        - root
+        - -ppassword1
+        - -e
+        - SELECT 1
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 3
+
+#minio
+minio:
+  image: minio/minio:latest
+  replicaCount: 1
+  service:
+    port: 9000
+  containerPort: 9001
+  auth:
+    MINIO_ROOT_USER: minioadmin
+    MINIO_ROOT_PASSWORD: minioadmin123
+  persistentVolumeClaim:
+    accessModes: ReadWriteOnce
+    storage: 1Gi
+  livenessProbe:
+    httpGet:
+      path: /minio/health/live
+      port: 9000
+    initialDelaySeconds: 30
+    periodSeconds: 10
+  readinessProbe:
+    httpGet:
+      path: /minio/health/ready
+      port: 9000
+    initialDelaySeconds: 10
+    periodSeconds: 5

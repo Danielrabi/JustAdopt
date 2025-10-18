@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "myapp.fullname" . }}-flask
+spec:
+  replicas: {{ .Values.flask.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "myapp.fullname" . }}-flask
+  template:
+    metadata:
+      labels:
+        app: {{ include "myapp.fullname" . }}-flask
+    spec:
+      containers:
+        - name: flask-app
+          image: {{ .Values.flask.image }}
+          ports:
+            - containerPort: {{ .Values.flask.service.port }}
+          env:
+            - name: DB_HOST
+              value: "{{ include "myapp.fullname" . }}-mysql-service"
+            - name: DB_USER
+              value: "{{ .Values.flask.env.DB_USER }}"
+            - name: DB_PASSWORD
+              value: "{{ .Values.flask.env.DB_PASSWORD }}"
+            - name: DB_NAME
+              value: "{{ .Values.flask.env.DB_NAME }}"
+            - name: MINIO_ENDPOINT
+              value: "{{ include "myapp.fullname" . }}-minio-service:9000"
+            - name: MINIO_ROOT_USER
+              value: "{{ .Values.flask.env.MINIO_ROOT_USER }}"
+            - name: MINIO_ROOT_PASSWORD
+              value: "{{ .Values.flask.env.MINIO_ROOT_PASSWORD }}"
+          livenessProbe:
+            {{- toYaml .Values.flask.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.flask.readinessProbe | nindent 12 }}
