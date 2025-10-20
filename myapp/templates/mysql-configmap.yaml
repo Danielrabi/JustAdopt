@@ -3,4 +3,4 @@ kind: ConfigMap
 metadata:
   name: mysql-initdb
 data:
-  {{ .Values.mysql.ConfigMap.data | indent 2 }}
+  {{- toYaml .Values.mysql.ConfigMap.data | nindent 2 }}

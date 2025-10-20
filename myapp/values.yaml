@@ -1,29 +1,33 @@
 #flask
 flask:
-  image: danielrabi/flaskapp:1.1.12x
+  image: danielrabi/flaskapp:1.1.15
   replicaCount: 1
   service:
     type: NodePort
     port: 5000
   env:
-    DB_HOST: {{ include "myapp.fullname" . }}-mysql-service
+    DB_HOST: mysql-service
     DB_USER: flask
     DB_PASSWORD: flaskpass
     DB_NAME: dog_list
-    MINIO_ENDPOINT: {{ include "myapp.fullname" . }}-minio-service:9000
+    MINIO_ENDPOINT: minio-service:9000
     MINIO_ROOT_USER: minioadmin
     MINIO_ROOT_PASSWORD: minioadmin123
   resources: {}
   livenessProbe:
     httpGet:
-      path: /
+      path: /health
       port: 5000
-    initialDelaySeconds: 15
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 3
   readinessProbe:
     httpGet: 
-      path: /
+      path: /readiness
       port: 5000
-    initialDelaySeconds: 10
+    initialDelaySeconds: 15
+    periodSeconds: 5
+    timeoutSeconds: 2
 
 #mysql
 mysql:

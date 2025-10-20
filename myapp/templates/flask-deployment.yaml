@@ -19,7 +19,7 @@ spec:
             - containerPort: {{ .Values.flask.service.port }}
           env:
             - name: DB_HOST
-              value: "{{ .Values.flask.env.DB_HOST }}"
+              value: "{{ include "myapp.fullname" . }}-{{ .Values.flask.env.DB_HOST }}"
             - name: DB_USER
               value: "{{ .Values.flask.env.DB_USER }}"
             - name: DB_PASSWORD
@@ -27,7 +27,7 @@ spec:
             - name: DB_NAME
               value: "{{ .Values.flask.env.DB_NAME }}"
             - name: MINIO_ENDPOINT
-              value: "{{ .Values.flask.env.MINIO_ENDPOINT }}"
+              value: "{{ include "myapp.fullname" . }}-{{ .Values.flask.env.MINIO_ENDPOINT }}"
             - name: MINIO_ROOT_USER
               value: "{{ .Values.flask.env.MINIO_ROOT_USER }}"
             - name: MINIO_ROOT_PASSWORD
