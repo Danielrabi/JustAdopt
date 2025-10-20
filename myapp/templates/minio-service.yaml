@@ -9,4 +9,4 @@ spec:
     - port: {{ .Values.minio.service.port }}
       targetPort: {{ .Values.minio.service.port }}
       name: api
-  type: ClusterIP
+  type: {{ .Values.minio.service.type | default "ClusterIP" }}

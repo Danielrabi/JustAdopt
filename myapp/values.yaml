@@ -6,11 +6,11 @@ flask:
     type: NodePort
     port: 5000
   env:
-    DB_HOST: mysql  # Will be updated to use Helm template
+    DB_HOST: {{ include "myapp.fullname" . }}-mysql-service
     DB_USER: flask
     DB_PASSWORD: flaskpass
     DB_NAME: dog_list
-    MINIO_ENDPOINT: minio-service:9000  # Will be updated to use Helm template
+    MINIO_ENDPOINT: {{ include "myapp.fullname" . }}-minio-service:9000
     MINIO_ROOT_USER: minioadmin
     MINIO_ROOT_PASSWORD: minioadmin123
   resources: {}
@@ -65,6 +65,16 @@ mysql:
     periodSeconds: 5
     timeoutSeconds: 2
     failureThreshold: 3
+  ConfigMap:
+    data:
+      init.sql: |
+        CREATE TABLE IF NOT EXISTS dogs (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          name VARCHAR(100),
+          breed VARCHAR(100),
+          age INT,
+          img_url VARCHAR(255)
+        );
 
 #minio
 minio:
@@ -72,6 +82,7 @@ minio:
   replicaCount: 1
   service:
     port: 9000
+    type: ClusterIP
   containerPort: 9001
   auth:
     MINIO_ROOT_USER: minioadmin
