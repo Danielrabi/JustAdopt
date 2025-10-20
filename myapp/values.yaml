@@ -1,6 +1,6 @@
 #flask
 flask:
-  image: danielrabi/flaskapp:1.1.15
+  image: danielrabi/flaskapp:latest
   replicaCount: 1
   service:
     type: NodePort
