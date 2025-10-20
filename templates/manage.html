@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Manage Dogs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .alert {
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .alert-error {
+            background-color: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+        }
+        .alert-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .alert-info {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+        }
+        form {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #007bff;
+            text-decoration: none;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Add a New Dog</h1>
+    
+    {% if error %}
+    <div class="alert alert-error">
+        <strong>❌ Error:</strong> {{ error }}
+    </div>
+    {% endif %}
+    
+    {% if warning %}
+    <div class="alert alert-warning">
+        <strong>⚠️ Warning:</strong> {{ warning }}
+    </div>
+    {% endif %}
+    
+    {% if success %}
+    <div class="alert alert-success">
+        <strong>✅ Success!</strong> Dog added successfully! <a href="/">View all dogs</a>
+    </div>
+    {% endif %}
+    
+    {% if minio_checked and not minio_available %}
+    <div class="alert alert-info">
+        <strong>ℹ️ Notice:</strong> Image storage (MinIO) is currently unavailable. You can still add dogs, but they will use a default placeholder image instead of uploaded photos.
+    </div>
+    {% endif %}
+    
+    {% if not minio_checked %}
+    <div class="alert alert-warning">
+        <strong>⚠️ Notice:</strong> Checking storage availability...
+    </div>
+    {% endif %}
+    
+    <form method="POST" enctype="multipart/form-data">
+        <label for="name">Dog Name:</label>
+        <input type="text" id="name" name="name" required>
+        
+        <label for="breed">Breed:</label>
+        <input type="text" id="breed" name="breed" required>
+        
+        <label for="age">Age:</label>
+        <input type="number" id="age" name="age" min="0" required>
+        
+        <label for="image">Upload Image:</label>
+        <input type="file" id="image" name="image" accept="image/*">
+        {% if minio_checked and not minio_available %}
+        <small style="color: #856404;">Image upload disabled - default image will be used</small>
+        {% endif %}
+        
+        <button type="submit">Add Dog</button>
+    </form>
+    
+    <a href="/" class="back-link">← Back to Dog List</a>
+</body>
+</html>
