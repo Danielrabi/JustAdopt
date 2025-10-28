@@ -33,14 +33,14 @@ resource "kubernetes_manifest" "my_app" {
     apiVersion = "argoproj.io/v1alpha1"
     kind       = "Application"
     metadata = {
-      name      = "my-app"
+      name      = "${var.env}-app"
       namespace = "argocd"
     }
     spec = {
       project = "default"
       source = {
-        repoURL        = "https://github.com/Danielrabi/JustAdopt.git"
-        targetRevision = "helm"
+        repoURL        = var.repourl
+        targetRevision = var.branch
         path           = "myapp"
       }
       destination = {
