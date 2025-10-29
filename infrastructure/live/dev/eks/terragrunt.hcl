@@ -13,6 +13,4 @@ inputs = {
   private_subnet_ids   = dependency.vpc.outputs.private_subnet_ids
   public_subnet_ids    = dependency.vpc.outputs.public_subnet_ids
   env          = "dev"
-  branch = "helm"
-  repourl = "https://github.com/Danielrabi/JustAdopt.git"
 }

@@ -11,6 +11,19 @@ provider "aws" {
   region = var.region
 }
 
+provider "helm" {
+  kubernetes = {
+host                   = module.eks.cluster_endpoint
+cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+token                  = data.aws_eks_cluster_auth.cluster.token
+load_config_file        = false
+  }
+}
+
+data "aws_eks_cluster_auth" "cluster" {
+name = var.cluster_name
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
@@ -51,6 +64,37 @@ module "eks" {
       min_size     = 1
       max_size     = 4
       desired_size = 2
+    }
+  }
+
+  tags = {
+    Environment = var.env
+    Terraform   = "true"
+  }
+}
+
+resource "helm_release" "argocd" {
+  name             = "argocd"
+  repository       = "https://argoproj.github.io/argo-helm"
+  chart            = "argo-cd"
+  namespace        = "argocd"
+  version          = "5.31.0"
+  create_namespace = true
+}
+
+# IAM role for AWS Load Balancer Controller
+module "lb_controller_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name = "${var.cluster_name}-aws-load-balancer-controller"
+
+  attach_load_balancer_controller_policy = true
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
     }
   }
 

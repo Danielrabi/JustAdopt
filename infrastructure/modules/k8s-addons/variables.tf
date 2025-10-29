@@ -1,0 +1,9 @@
+variable "cluster_name" {}
+variable "repourl" {}
+variable "branch" {}
+variable "env" {}
+variable "host" {}
+variable "cluster_ca_certificate" {}
+variable "lb_controller_irsa" {}
+variable "vpc_id" {}
+variable "region" {}
