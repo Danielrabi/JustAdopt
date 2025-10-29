@@ -3,7 +3,7 @@ flask:
   image: danielrabi/flaskapp:latest
   replicaCount: 1
   service:
-    type: LoadBalancer
+    type: ClusterIP
     port: 80
     targetPort: 8080
   containerPort: 5000
