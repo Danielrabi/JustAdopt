@@ -9,3 +9,4 @@ spec:
     - port: {{ .Values.flask.service.port }}
       targetPort: {{ .Values.flask.service.port }}
   type: {{ .Values.flask.service.type }}
+  targetPort: {{ .Values.flask.service.targetPort }}

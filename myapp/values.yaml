@@ -3,8 +3,10 @@ flask:
   image: danielrabi/flaskapp:latest
   replicaCount: 1
   service:
-    type: NodePort
-    port: 5000
+    type: LoadBalancer
+    port: 80
+    targetPort: 8080
+  containerPort: 5000
   env:
     DB_HOST: mysql-service
     DB_USER: flask
