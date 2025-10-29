@@ -7,6 +7,10 @@ terraform {
   }
 }
 
+data "aws_eks_cluster_auth" "cluster" {
+name = var.cluster_name
+}
+
 provider "aws" {
   region = var.region
 }
@@ -18,10 +22,6 @@ cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_d
 token                  = data.aws_eks_cluster_auth.cluster.token
 load_config_file        = false
   }
-}
-
-data "aws_eks_cluster_auth" "cluster" {
-name = var.cluster_name
 }
 
 module "eks" {
@@ -74,6 +74,7 @@ module "eks" {
 }
 
 resource "helm_release" "argocd" {
+  depends_on = [module.eks]
   name             = "argocd"
   repository       = "https://argoproj.github.io/argo-helm"
   chart            = "argo-cd"
