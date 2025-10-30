@@ -79,3 +79,84 @@ resource "helm_release" "aws_load_balancer_controller" {
     }
   ]
 }
+
+# Install NGINX Ingress Controller via Helm
+resource "helm_release" "nginx_ingress_controller" {
+  name       = "ingress-nginx"
+  repository = "https://kubernetes.github.io/ingress-nginx"
+  chart      = "ingress-nginx"
+  namespace  = "ingress-nginx"
+  create_namespace = true
+  version    = "4.10.1"
+
+  set = [
+    {
+      name  = "controller.service.type"
+      value = "NodePort"
+    },
+    {
+      name = "controller.ingressClassResource.name"
+      value = "nginx"
+    },
+    {
+      name = "controller.ingressClassResource.default"
+      value = "false"
+    },
+    {
+      name = "controller.ingressClass"
+      value = "nginx"
+    }
+  ]
+}
+
+# This is the "ALB" for NGINX
+resource "kubernetes_manifest" "nginx_ingress_alb" {
+  # Depends on both controllers being ready
+  depends_on = [
+    helm_release.aws_load_balancer_controller,
+    helm_release.nginx_ingress_controller
+  ]
+
+  manifest = {
+    "apiVersion" = "networking.k8s.io/v1"
+    "kind" = "Ingress"
+    "metadata" = {
+      "name" = "nginx-controller-alb"
+      "namespace" = "ingress-nginx"
+      "annotations" = {
+        # This line tells the AWS ALB Controller to handle this Ingress
+        "kubernetes.io/ingress.class" = "alb"
+        # Specify target type as IP to work with NGINX NodePort service
+        "alb.ingress.kubernetes.io/target-type" = "ip"
+        
+        # Specify it's an internet-facing ALB
+        "alb.ingress.kubernetes.io/scheme" = "internet-facing"
+      }
+    }
+    "spec" = {
+      # This line specifies the AWS ALB controller
+      "ingressClassName" = "alb"
+      "rules" = [
+        {
+          "http" = {
+            "paths" = [
+              {
+                "path" = "/"
+                "pathType" = "Prefix"
+                "backend" = {
+                  "service" = {
+                    # This must match the service name created by the nginx helm chart
+                    "name" = "ingress-nginx-controller" 
+                    "port" = {
+                      "name" = "http" 
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
