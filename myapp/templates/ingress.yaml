@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "myapp.fullname" . }}-ingress
+  # Add NGINX-specific annotations here (e.g., for rewrites, auth, etc.)
+  # annotations:
+  #   nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx 
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "myapp.fullname" . }}-flask-service
+                port:
+                  # This must match the port in your flask-service.yaml
+                  number: {{ .Values.flask.service.port }} 
+          
+          # You could add other rules here, e.g.:
+          # - path: /minio
+          #   pathType: Prefix
+          #   backend:
+          #     service:
+          #       name: {{ include "myapp.fullname" . }}-minio-service
+          #       port:
+          #         number: {{ .Values.minio.service.port }}

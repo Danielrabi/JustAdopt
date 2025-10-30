@@ -16,7 +16,7 @@ spec:
         - name: flask-app
           image: {{ .Values.flask.image }}
           ports:
-            - containerPort: {{ .Values.flask.service.port }}
+            - containerPort: {{ .Values.flask.containerPort }}
           env:
             - name: DB_HOST
               value: "{{ include "myapp.fullname" . }}-{{ .Values.flask.env.DB_HOST }}"

@@ -5,7 +5,6 @@ flask:
   service:
     type: ClusterIP
     port: 80
-    targetPort: 8080
   containerPort: 5000
   env:
     DB_HOST: mysql-service
