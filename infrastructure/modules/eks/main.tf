@@ -24,6 +24,28 @@ load_config_file        = false
   }
 }
 
+module "ebs_csi_driver_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name = "${var.cluster_name}-ebs-csi-driver"
+
+  attach_ebs_csi_policy = true # This is the policy it needs
+
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      # This service account name is from your kubectl output
+      namespace_service_accounts = ["kube-system:ebs-csi-controller-sa"]
+    }
+  }
+
+  tags = {
+    Environment = var.env
+    Terraform   = "true"
+  }
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "~> 21.0"
@@ -39,6 +61,9 @@ module "eks" {
     kube-proxy             = {}
     vpc-cni                = {
       before_compute = true
+    }
+    aws-ebs-csi-driver = {
+      service_account_role_arn = module.ebs_csi_driver_irsa.iam_role_arn
     }
   }
 
