@@ -17,6 +17,19 @@ data "aws_eks_cluster_auth" "cluster" {
   name = var.cluster_name
 }
 
+resource "kubernetes_annotations" "gp2_default" {
+  api_version = "storage.k8s.io/v1"
+  kind        = "StorageClass"
+
+  metadata {
+    name = "gp2"
+  }
+
+  annotations = {
+    "storageclass.kubernetes.io/is-default-class" = "true"
+  }
+}
+
 resource "kubernetes_manifest" "my_app" {
 
   manifest = {
