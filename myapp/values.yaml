@@ -13,7 +13,7 @@ flask:
     DB_USER: flask
     DB_PASSWORD: flaskpass
     DB_NAME: dog_list
-    S3_BUCKET_name: dog_list
+    S3_BUCKET_NAME: dog_list
   resources: {}
   livenessProbe:
     httpGet:
