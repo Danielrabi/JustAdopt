@@ -8,14 +8,13 @@ flask:
     type: ClusterIP
     port: 80
   containerPort: 5000
-  resources: {
+  resources:
     requests:
       cpu: "100m"
       memory: "128Mi"
     limits:
       cpu: "250m"
       memory: "256Mi"
-  }
   livenessProbe:
     httpGet:
       path: /health
