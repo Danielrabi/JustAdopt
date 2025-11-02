@@ -11,9 +11,7 @@ flask:
     DB_USER: flask
     DB_PASSWORD: flaskpass
     DB_NAME: dog_list
-    MINIO_ENDPOINT: minio-service:9000
-    MINIO_ROOT_USER: minioadmin
-    MINIO_ROOT_PASSWORD: minioadmin123
+    S3_BUCKET_name: dog_list
   resources: {}
   livenessProbe:
     httpGet:
@@ -80,30 +78,3 @@ mysql:
           age INT,
           img_url VARCHAR(255)
         );
-
-#minio
-minio:
-  image: minio/minio:latest
-  replicaCount: 1
-  service:
-    port: 9000
-    type: ClusterIP
-  containerPort: 9001
-  auth:
-    MINIO_ROOT_USER: minioadmin
-    MINIO_ROOT_PASSWORD: minioadmin123
-  persistentVolumeClaim:
-    accessModes: ReadWriteOnce
-    storage: 1Gi
-  livenessProbe:
-    httpGet:
-      path: /minio/health/live
-      port: 9000
-    initialDelaySeconds: 30
-    periodSeconds: 10
-  readinessProbe:
-    httpGet:
-      path: /minio/health/ready
-      port: 9000
-    initialDelaySeconds: 10
-    periodSeconds: 5

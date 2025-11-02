@@ -26,12 +26,8 @@ spec:
               value: "{{ .Values.flask.env.DB_PASSWORD }}"
             - name: DB_NAME
               value: "{{ .Values.flask.env.DB_NAME }}"
-            - name: MINIO_ENDPOINT
-              value: "{{ include "myapp.fullname" . }}-{{ .Values.flask.env.MINIO_ENDPOINT }}"
-            - name: MINIO_ROOT_USER
-              value: "{{ .Values.flask.env.MINIO_ROOT_USER }}"
-            - name: MINIO_ROOT_PASSWORD
-              value: "{{ .Values.flask.env.MINIO_ROOT_PASSWORD }}"
+            - name: S3_BUCKET_name
+              value: "{{ .Values.flask.env.S3_BUCKET_name }}"
           livenessProbe:
             {{- toYaml .Values.flask.livenessProbe | nindent 12 }}
           readinessProbe:
