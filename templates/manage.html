@@ -1,27 +1,237 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Manage Dogs</title>
-    </head>
-<body>
-    <h1>Add a New Dog</h1>
-    
-    {% if not s3_available %}
-    <div class="alert alert-info">
-        <strong>ℹ️ Notice:</strong> Image storage is currently unavailable. You can still add dogs, but they will use a default placeholder image instead of uploaded photos.
-    </div>
-    {% endif %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Dog - Dog Adoption Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <form method="POST" enctype="multipart/form-data">
-        <label for="image">Upload Image:</label>
-        <input type="file" id="image" name="image" accept="image/*">
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+        }
+
+        .alert strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .alert-info {
+            background-color: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            color: #0c5460;
+        }
+
+        .alert-error {
+            background-color: #fee;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            border-left: 4px solid #28a745;
+            color: #155724;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            font-size: 1rem;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="file"] {
+            padding: 0.75rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="file"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        input[type="file"] {
+            padding: 0.5rem;
+            cursor: pointer;
+        }
+
+        input[type="file"]:disabled {
+            background-color: #f5f5f5;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .file-note {
+            font-size: 0.85rem;
+            color: #856404;
+            margin-top: 0.25rem;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .back-link {
+            display: inline-block;
+            text-align: center;
+            color: #667eea;
+            text-decoration: none;
+            margin-top: 1rem;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .back-link:hover {
+            color: #764ba2;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 Add a New Dog</h1>
+        
         {% if not s3_available %}
-        <small style="color: #856404;">Image upload disabled - default image will be used</small>
+        <div class="alert alert-info">
+            <strong>ℹ️ Notice:</strong> S3 storage is currently unavailable. You can still add dogs, but they will use a default placeholder image instead of uploaded photos.
+        </div>
+        {% endif %}
+
+        {% if error %}
+        <div class="alert alert-error">
+            <strong>❌ Error:</strong> {{ error }}
+        </div>
+        {% endif %}
+
+        {% if warning %}
+        <div class="alert alert-warning">
+            <strong>⚠️ Warning:</strong> {{ warning }}
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="alert alert-success">
+            <strong>✅ Success:</strong> Dog has been added successfully!
+        </div>
         {% endif %}
         
-        <button type="submit">Add Dog</button>
-    </form>
-    
-    <a href="/" class="back-link">← Back to Dog List</a>
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="name">Dog's Name:</label>
+                <input type="text" id="name" name="name" required placeholder="e.g., Max, Bella, Charlie">
+            </div>
+
+            <div class="form-group">
+                <label for="breed">Breed:</label>
+                <input type="text" id="breed" name="breed" required placeholder="e.g., Golden Retriever, Beagle">
+            </div>
+
+            <div class="form-group">
+                <label for="age">Age (years):</label>
+                <input type="number" id="age" name="age" required min="0" placeholder="e.g., 3">
+            </div>
+
+            <div class="form-group">
+                <label for="image">Upload Image:</label>
+                <input type="file" id="image" name="image" accept="image/*" {% if not s3_available %}disabled{% endif %}>
+                {% if not s3_available %}
+                <small class="file-note">⚠️ Image upload disabled - default image will be used</small>
+                {% endif %}
+            </div>
+
+            <button type="submit">Add Dog to Adoption Center</button>
+        </form>
+        
+        <a href="/" class="back-link">← Back to Dog List</a>
+    </div>
 </body>
 </html>

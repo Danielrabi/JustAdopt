@@ -1,39 +1,209 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dog Adoption</title>
-    </head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dog Adoption Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert strong {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+
+        .alert p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        .alert-error {
+            background-color: #fee;
+            border-left: 4px solid #dc3545;
+            color: #721c24;
+        }
+
+        .alert-warning {
+            background-color: #fff3cd;
+            border-left: 4px solid #ffc107;
+            color: #856404;
+        }
+
+        .add-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .add-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .dog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .dog-card {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .dog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .dog-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            background-color: #f0f0f0;
+        }
+
+        .dog-card-content {
+            padding: 1.5rem;
+        }
+
+        .dog-card h3 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .dog-card p {
+            color: #666;
+            margin-bottom: 0.5rem;
+            line-height: 1.6;
+        }
+
+        .dog-card strong {
+            color: #667eea;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #666;
+        }
+
+        .empty-state p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+
+            .container {
+                padding: 1.5rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .dog-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
 <body>
-    <h1>🐕 Dog Adoption Center</h1>
-    
-    {% if db_error %}
-    <div class="alert alert-error">
-        <strong>⚠️ Database Connection Error</strong>
-        <p>Unable to connect to the database. Please check if the MySQL service is running.</p>
-    </div>
-    {% endif %}
-    
-    {% if s3_error %}
-    <div class="alert alert-warning">
-        <strong>⚠️ Image Storage Unavailable</strong>
-        <p>The image storage service is currently unavailable. Dogs added during this time will show default placeholder images. The service is operating in degraded mode.</p>
-    </div>
-    {% endif %}
-    
-    <a href="/manage" class="add-button">+ Add New Dog</a>
-    
-    {% if dogs %}
-    <div class="dog-grid">
-        {% for dog in dogs %}
-        <div class="dog-card">
-            <img src="{{ dog.img_url }}" alt="{{ dog.name }}" onerror="this.src='/static/images/default.jpg'">
-            <h3>{{ dog.name }}</h3>
-            <p><strong>Breed:</strong> {{ dog.breed }}</p>
-            <p><strong>Age:</strong> {{ dog.age }} years old</p>
+    <div class="container">
+        <h1>🐕 Dog Adoption Center</h1>
+        
+        {% if db_error %}
+        <div class="alert alert-error">
+            <div>
+                <strong>⚠️ Database Connection Error</strong>
+                <p>Unable to connect to the database. Please check if the MySQL service is running.</p>
+            </div>
         </div>
-        {% endfor %}
+        {% endif %}
+        
+        {% if s3_error %}
+        <div class="alert alert-warning">
+            <div>
+                <strong>⚠️ S3 Storage Unavailable</strong>
+                <p>The S3 image storage service is currently unavailable. Dogs added during this time will show default placeholder images. The service is operating in degraded mode.</p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <a href="/manage" class="add-button">+ Add New Dog</a>
+        
+        {% if dogs %}
+        <div class="dog-grid">
+            {% for dog in dogs %}
+            <div class="dog-card">
+                <img src="{{ dog.img_url }}" alt="{{ dog.name }}" onerror="this.src='/static/images/default.jpg'">
+                <div class="dog-card-content">
+                    <h3>{{ dog.name }}</h3>
+                    <p><strong>Breed:</strong> {{ dog.breed }}</p>
+                    <p><strong>Age:</strong> {{ dog.age }} years old</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <p>🐾 No dogs available for adoption yet.</p>
+            <p>Be the first to add a furry friend!</p>
+        </div>
+        {% endif %}
     </div>
-    {% else %}
-    {% endif %}
 </body>
 </html>
