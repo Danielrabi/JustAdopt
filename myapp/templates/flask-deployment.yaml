@@ -29,6 +29,8 @@ spec:
               value: "{{ .Values.flask.env.DB_NAME }}"
             - name: S3_BUCKET_NAME
               value: "{{ .Values.flask.env.S3_BUCKET_NAME }}"
+          resources:
+            {{- toYaml .Values.flask.resources | nindent 12 }}
           livenessProbe:
             {{- toYaml .Values.flask.livenessProbe | nindent 12 }}
           readinessProbe:
