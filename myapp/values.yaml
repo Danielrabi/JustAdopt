@@ -1,6 +1,6 @@
 #flask
 flask:
-  image: danielrabi/flaskapp:1.2.5
+  image: danielrabi/flaskapp:1.2.6
   replicaCount: 1
   serviceAccount:
     roleArn: ""
@@ -29,54 +29,3 @@ flask:
     initialDelaySeconds: 15
     periodSeconds: 5
     timeoutSeconds: 2
-
-#mysql
-mysql:
-  image: mysql:8.0
-  replicaCount: 1
-  service:
-    port: 3306
-  auth:
-    MYSQL_ROOT_PASSWORD: password1
-    MYSQL_DATABASE: dog_list
-    MYSQL_USER: flask
-    MYSQL_PASSWORD: flaskpass
-  persistentVolumeClaim:
-    accessModes: ReadWriteOnce
-    storage: 1Gi
-  livenessProbe:
-    exec:
-      command:
-        - mysqladmin
-        - ping
-        - -h
-        - localhost
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    timeoutSeconds: 5
-    failureThreshold: 3
-  readinessProbe:
-    exec:
-      command:
-        - mysql
-        - -h
-        - localhost
-        - -u
-        - root
-        - -ppassword1
-        - -e
-        - SELECT 1
-    initialDelaySeconds: 10
-    periodSeconds: 5
-    timeoutSeconds: 2
-    failureThreshold: 3
-  ConfigMap:
-    data:
-      init.sql: |
-        CREATE TABLE IF NOT EXISTS dogs (
-          id INT AUTO_INCREMENT PRIMARY KEY,
-          name VARCHAR(100),
-          breed VARCHAR(100),
-          age INT,
-          img_url VARCHAR(255)
-        );
