@@ -8,3 +8,5 @@ variable "lb_controller_irsa" {}
 variable "vpc_id" {}
 variable "region" {}
 variable "bucket_name" {}
+variable "bucket_arn" {}
+variable "oidc_provider" {}

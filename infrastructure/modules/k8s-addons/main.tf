@@ -30,6 +30,54 @@ resource "kubernetes_annotations" "gp2_default" {
   }
 }
 
+# ... (near your other helm/kubernetes providers) ...
+
+# --- 1. DEFINE THE S3 POLICY FOR FLASK ---
+data "aws_iam_policy_document" "flask_s3_policy" {
+  statement {
+    actions = [
+      "s3:PutObject",
+      "s3:GetObject",
+      "s3:ListBucket"
+    ]
+    resources = [
+      var.bucket_arn,
+      "${var.bucket_arn}/*" # Allow access to objects *within* the bucket
+    ]
+  }
+  statement {
+    actions = ["s3:HeadBucket"]
+    resources = [var.bucket_arn]
+  }
+}
+
+resource "aws_iam_policy" "flask_s3_policy" {
+  name   = "${var.cluster_name}-flask-s3-policy"
+  policy = data.aws_iam_policy_document.flask_s3_policy.json
+}
+
+module "flask_s3_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
+
+  role_name = "${var.cluster_name}-flask-app"
+  role_policy_arns = {
+    flask-s3-policy = aws_iam_policy.flask_s3_policy.arn
+  }
+
+  oidc_providers = {
+    main = {
+      provider_arn               = var.oidc_provider
+      namespace_service_accounts = ["default:${var.env}-app-myapp-flask-sa"]
+    }
+  }
+
+  tags = {
+    Environment = var.env
+    Terraform   = "true"
+  }
+}
+
 resource "kubernetes_manifest" "my_app" {
 
   manifest = {
