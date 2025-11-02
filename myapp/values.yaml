@@ -2,6 +2,8 @@
 flask:
   image: danielrabi/flaskapp:1.2.3
   replicaCount: 1
+  serviceAccount:
+    roleArn: ""
   service:
     type: ClusterIP
     port: 80

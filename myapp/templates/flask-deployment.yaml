@@ -12,6 +12,7 @@ spec:
       labels:
         app: {{ include "myapp.fullname" . }}-flask
     spec:
+      serviceAccountName: {{ include "myapp.fullname" . }}-flask-sa
       containers:
         - name: flask-app
           image: {{ .Values.flask.image }}
