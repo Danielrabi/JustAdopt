@@ -3,7 +3,7 @@ terraform {
 }
 
 dependency "vpc"{
-  config_path = "../vpc"
+  config_path = "../../../foundation/dev/vpc"
 }
 dependency "eks" {
   config_path = "../eks"
