@@ -18,12 +18,3 @@ spec:
                 port:
                   # This must match the port in your flask-service.yaml
                   number: {{ .Values.flask.service.port }} 
-          
-          # You could add other rules here, e.g.:
-          # - path: /minio
-          #   pathType: Prefix
-          #   backend:
-          #     service:
-          #       name: {{ include "myapp.fullname" . }}-minio-service
-          #       port:
-          #         number: {{ .Values.minio.service.port }}
