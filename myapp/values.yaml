@@ -8,12 +8,6 @@ flask:
     type: ClusterIP
     port: 80
   containerPort: 5000
-  env:
-    DB_HOST: mysql-service
-    DB_USER: flask
-    DB_PASSWORD: flaskpass
-    DB_NAME: dog_list
-    S3_BUCKET_NAME: dog_list
   resources: {}
   livenessProbe:
     httpGet:
