@@ -98,6 +98,10 @@ resource "kubernetes_manifest" "my_app" {
             {
               name  = "flask.env.S3_BUCKET_NAME"
               value = var.bucket_name
+            },
+            {
+              name  = "flask.serviceAccount.roleArn"
+              value = tostring(module.flask_s3_irsa.iam_role_arn)
             }
           ]
         }
