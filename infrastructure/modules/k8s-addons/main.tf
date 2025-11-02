@@ -45,6 +45,14 @@ resource "kubernetes_manifest" "my_app" {
         repoURL        = var.repourl
         targetRevision = var.branch
         path           = "myapp"
+        helm = {
+          parameters = [
+            {
+              name  = "flask.env.S3_BUCKET_NAME"
+              value = var.bucket_name
+            }
+          ]
+        }
       }
       destination = {
         server    = "https://kubernetes.default.svc"

@@ -7,3 +7,4 @@ variable "cluster_ca_certificate" {}
 variable "lb_controller_irsa" {}
 variable "vpc_id" {}
 variable "region" {}
+variable "bucket_name" {}

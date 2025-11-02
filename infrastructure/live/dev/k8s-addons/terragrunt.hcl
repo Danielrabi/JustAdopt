@@ -6,7 +6,10 @@ dependency "vpc"{
   config_path = "../vpc"
 }
 dependency "eks" {
-    config_path = "../eks"
+  config_path = "../eks"
+}
+dependency "s3" {
+  config_path = "../../../foundation/dev/s3"
 }
 
 inputs = {
@@ -19,4 +22,5 @@ inputs = {
     lb_controller_irsa = dependency.eks.outputs.lb_controller_role_arn
     vpc_id = dependency.vpc.outputs.vpc_id
     region = "us-east-1"
+    bucket_name = dependency.s3.outputs.s3_bucket_name
 }
