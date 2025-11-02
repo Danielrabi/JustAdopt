@@ -142,46 +142,45 @@ def index():
     db_error = len(dogs) == 0 and not check_db_health()
     s3_error = not S3_AVAILABLE
 
-    # Pass the new S3 error flag to the template
-    return render_template("index.html", dogs=dogs, db_error=db_error, minio_error=s3_error) # Re-using 'minio_error' template variable
+    # FIX: Pass the 's3_error' variable
+    return render_template("index.html", dogs=dogs, db_error=db_error, s3_error=s3_error)
 
 @app.route("/manage", methods=["GET", "POST"])
 def manage():
     if request.method == "POST":
-        # ... (Your existing validation logic is great) ...
         name = request.form.get("name", "").strip()
         breed = request.form.get("breed", "").strip()
         age = request.form.get("age", "").strip()
         file = request.files.get("image")
 
         if not name or not breed or not age:
-             return render_template("manage.html", error="All fields are required.", minio_available=S3_AVAILABLE)
+             # FIX: Pass 's3_available'
+             return render_template("manage.html", error="All fields are required.", s3_available=S3_AVAILABLE)
 
-        # ... (rest of your validation) ...
         try:
             age_int = int(age)
+            if age_int < 0:
+                raise ValueError("Age must be positive")
         except ValueError:
-            return render_template("manage.html", error="Age must be a valid number.", minio_available=S3_AVAILABLE)
+            # FIX: Pass 's3_available'
+            return render_template("manage.html", error="Age must be a valid number.", s3_available=S3_AVAILABLE)
 
         success = add_dog(name, breed, age_int, file)
 
         if not success:
-            return render_template("manage.html", error="Failed to add dog. Database connection error.", minio_available=S3_AVAILABLE)
+            # FIX: Pass 's3_available'
+            return render_template("manage.html", error="Failed to add dog. Database connection error.", s3_available=S3_AVAILABLE)
 
         if not S3_AVAILABLE:
-            return render_template("manage.html", warning="Dog added! Note: S3 storage is unavailable, default image was used.", success=True, minio_available=S3_AVAILABLE)
+            # FIX: Pass 's3_available'
+            return render_template("manage.html", warning="Dog added! Note: S3 storage is unavailable, default image was used.", success=True, s3_available=S3_AVAILABLE)
 
         return redirect(url_for("index"))
 
     # GET request - show the form
-    return render_template("manage.html", minio_available=S3_AVAILABLE)
+    # FIX: Pass 's3_available'
+    return render_template("manage.html", s3_available=S3_AVAILABLE)
 
-# --- REMOVE THIS ENTIRE ROUTE ---
-# @app.route("/images/<filename>")
-# def serve_image(filename):
-#     ... (This is no longer needed, S3 will serve images) ...
-
-# --- Health checks are perfect, no changes needed ---
 @app.route("/health")
 def health():
     db_healthy = check_db_health()
