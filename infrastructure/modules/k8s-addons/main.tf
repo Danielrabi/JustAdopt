@@ -59,7 +59,10 @@ resource "kubernetes_manifest" "my_app" {
         namespace = "default"
       }
       syncPolicy = {
-        automated = {}
+        automated = {
+          prune = true
+          selfHeal = true
+        }
       }
     }
   }
