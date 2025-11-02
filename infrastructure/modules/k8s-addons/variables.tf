@@ -10,3 +10,9 @@ variable "region" {}
 variable "bucket_name" {}
 variable "bucket_arn" {}
 variable "oidc_provider" {}
+variable "db_endpoint" {}
+variable "db_name" {}
+variable "db_username" {}
+variable "db_password_secret_arn" {}
+variable "rds_security_group_id" {}
+variable "eks_cluster_security_group_id" {}
