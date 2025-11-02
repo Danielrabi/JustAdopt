@@ -1,6 +1,6 @@
 #flask
 flask:
-  image: danielrabi/flaskapp:1.2.3
+  image: danielrabi/flaskapp:1.2.4
   replicaCount: 1
   serviceAccount:
     roleArn: ""
