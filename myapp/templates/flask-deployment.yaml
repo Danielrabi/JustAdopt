@@ -27,8 +27,8 @@ spec:
               value: "{{ .Values.flask.env.DB_PASSWORD }}"
             - name: DB_NAME
               value: "{{ .Values.flask.env.DB_NAME }}"
-            - name: S3_BUCKET_name
-              value: "{{ .Values.flask.env.S3_BUCKET_name }}"
+            - name: S3_BUCKET_NAME
+              value: "{{ .Values.flask.env.S3_BUCKET_NAME }}"
           livenessProbe:
             {{- toYaml .Values.flask.livenessProbe | nindent 12 }}
           readinessProbe:
