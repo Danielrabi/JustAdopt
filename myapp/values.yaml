@@ -20,7 +20,7 @@ flask:
       memory: "128Mi"
     limits:
       cpu: "250m"
-      memory: "512Mi"
+      memory: "1Gi"
   livenessProbe:
     httpGet:
       path: /health
