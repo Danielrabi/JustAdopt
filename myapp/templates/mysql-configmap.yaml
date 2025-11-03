@@ -1,0 +1,6 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb
+data:
+  {{- toYaml .Values.mysql.ConfigMap.data | nindent 2 }}
