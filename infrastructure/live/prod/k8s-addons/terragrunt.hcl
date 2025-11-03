@@ -20,8 +20,8 @@ dependency "rds" {
 
 inputs = {
     env = "prod"
-    branch = "helm"
-    repourl = "https://github.com/Danielrabi/JustAdopt.git"
+    branch = "main"
+    repourl = "https://github.com/Danielrabi/JustAdopt_prodChart.git"
     host = dependency.eks.outputs.cluster_endpoint
     cluster_ca_certificate = dependency.eks.outputs.cluster_ca_certificate
     cluster_name = dependency.eks.outputs.cluster_name
