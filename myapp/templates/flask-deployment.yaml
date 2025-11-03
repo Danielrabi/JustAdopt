@@ -18,17 +18,6 @@ spec:
           image: {{ .Values.flask.image }}
           ports:
             - containerPort: {{ .Values.flask.containerPort }}
-          env:
-            - name: DB_HOST
-              value: "{{ .Values.flask.env.DB_HOST }}"
-            - name: DB_USER
-              value: "{{ .Values.flask.env.DB_USER }}"
-            - name: DB_PASSWORD
-              value: "{{ .Values.flask.env.DB_PASSWORD }}"
-            - name: DB_NAME
-              value: "{{ .Values.flask.env.DB_NAME }}"
-            - name: S3_BUCKET_NAME
-              value: "{{ .Values.flask.env.S3_BUCKET_NAME }}"
           resources:
             {{- toYaml .Values.flask.resources | nindent 12 }}
           livenessProbe:
