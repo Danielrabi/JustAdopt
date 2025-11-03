@@ -3,13 +3,16 @@ terraform {
 }
 
 dependency "vpc"{
-  config_path = "../vpc"
+  config_path = "../../../foundation/dev/vpc"
 }
 dependency "eks" {
   config_path = "../eks"
 }
 dependency "s3" {
   config_path = "../../../foundation/dev/s3"
+}
+dependency "rds" {
+  config_path = "../../../foundation/dev/rds"
 }
 
 inputs = {
@@ -25,4 +28,7 @@ inputs = {
     region = "us-east-1"
     bucket_name = dependency.s3.outputs.s3_bucket_name
     bucket_arn = dependency.s3.outputs.s3_bucket_arn
+    db_endpoint            = dependency.rds.outputs.db_endpoint
+    db_username            = dependency.rds.outputs.db_username
+    db_password_secret_arn = dependency.rds.outputs.db_password_secret_arn
 }

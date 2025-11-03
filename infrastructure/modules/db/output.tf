@@ -17,8 +17,3 @@ output "db_password_secret_arn" {
   description = "The ARN of the AWS Secrets Manager secret for the DB password"
   value       = aws_secretsmanager_secret.db_password.arn
 }
-
-output "db_security_group_id" {
-  description = "The ID of the security group for the RDS instance"
-  value       = aws_security_group.rds.id
-}

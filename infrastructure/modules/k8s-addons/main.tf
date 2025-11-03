@@ -51,6 +51,11 @@ data "aws_iam_policy_document" "flask_s3_policy" {
   }
 }
 
+# Read the database password from AWS Secrets Manager
+data "aws_secretsmanager_secret_version" "db_password" {
+  secret_id = var.db_password_secret_arn
+}
+
 resource "aws_iam_policy" "flask_s3_policy" {
   name   = "${var.cluster_name}-flask-s3-policy"
   policy = data.aws_iam_policy_document.flask_s3_policy.json
@@ -102,6 +107,22 @@ resource "kubernetes_manifest" "my_app" {
             {
               name  = "flask.serviceAccount.roleArn"
               value = tostring(module.flask_s3_irsa.iam_role_arn)
+            },
+            {
+              name  = "flask.env.DB_HOST"
+              value = var.db_endpoint
+            },
+            {
+              name  = "flask.env.DB_USER"
+              value = var.db_username
+            },
+            {
+              name  = "flask.env.DB_PASSWORD"
+              value = data.aws_secretsmanager_secret_version.db_password.secret_string
+            },
+            {
+              name  = "flask.env.DB_NAME"
+              value = "dog_list" # Hardcode to match the RDS DB name
             }
           ]
         }

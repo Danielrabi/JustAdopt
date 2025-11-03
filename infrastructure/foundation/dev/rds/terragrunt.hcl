@@ -2,16 +2,17 @@ terraform {
   source = "../../../modules/db"
 }
 
-# This depends on the VPC, which you are moving to the foundation layer
+# This depends on the VPC
 dependency "vpc" {
   config_path = "../vpc"
 }
 
 inputs = {
   env = "dev"
-  db_name = "dog_list"
-  vpc_id = dependency.vpc.outputs.vpc_id
-  private_subnet_ids = dependency.vpc.outputs.private_subnet_ids
+  db_name = "dog_list" # Matches what the app expects
   instance_class = "db.t3.micro"
   allocated_storage = 20
+  vpc_id = dependency.vpc.outputs.vpc_id
+  private_subnet_ids = dependency.vpc.outputs.private_subnet_ids
+  engine_version = "8.0"
 }
