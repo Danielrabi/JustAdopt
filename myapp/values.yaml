@@ -1,6 +1,6 @@
 #flask
 flask:
-  image: danielrabi/flaskapp:1.2.7
+  image: danielrabi/flaskapp:1.2.5
   replicaCount: 1
   serviceAccount:
     roleArn: ""
@@ -20,7 +20,7 @@ flask:
       memory: "128Mi"
     limits:
       cpu: "250m"
-      memory: "1Gi"
+      memory: "256i"
   livenessProbe:
     httpGet:
       path: /health
