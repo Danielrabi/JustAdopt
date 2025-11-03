@@ -2,9 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "myapp.fullname" . }}-ingress
-  annotations:
-    # This line increases the max upload size to 10 megabytes
-    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+  # Add NGINX-specific annotations here (e.g., for rewrites, auth, etc.)
+  # annotations:
+  #   nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   ingressClassName: nginx 
   rules:
