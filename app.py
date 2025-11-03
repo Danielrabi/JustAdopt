@@ -21,37 +21,18 @@ db_config = {
     "database": os.environ.get("DB_NAME", "dog_adoption"),
 }
 
-def init_db():
-    """Initialize the database and create tables if they don't exist."""
-    create_table_sql = """
-    CREATE TABLE IF NOT EXISTS dogs (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      name VARCHAR(100),
-      breed VARCHAR(100),
-      age INT,
-      img_url VARCHAR(255)
-    );
-    """
-    try:
-        print("Connecting to database to initialize schema...")
-        connection = mysql.connector.connect(**db_config)
-        cursor = connection.cursor()
-        cursor.execute(create_table_sql)
-        connection.commit()
-        cursor.close()
-        connection.close()
-        print("✓ Database schema initialized.")
-    except MySQLError as e:
-        print(f"✗ FAILED to initialize database schema: {e}")
-        pass
-
 def init_s3():
     """Initialize S3 client and check connection"""
     global S3_CLIENT, S3_AVAILABLE
     if S3_BUCKET_NAME:
         try:
+            # When running in EKS with an IRSA, boto3 automatically finds credentials.
+            # You can specify region for good practice.
             S3_CLIENT = boto3.client("s3", region_name="us-east-1")
+
+            # Check if bucket exists and we have access
             S3_CLIENT.head_bucket(Bucket=S3_BUCKET_NAME)
+
             print(f"✓ Connected to S3 bucket: {S3_BUCKET_NAME}")
             S3_AVAILABLE = True
         except ClientError as e:
@@ -61,7 +42,39 @@ def init_s3():
         print("✗ S3_BUCKET_NAME environment variable not set.")
         S3_AVAILABLE = False
 
+def init_db():
+    """Create the 'dogs' table if it doesn't already exist."""
+    
+    # This is the SQL from your old ConfigMap
+    create_table_sql = """
+    CREATE TABLE IF NOT EXISTS dogs (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(100),
+      breed VARCHAR(100),
+      age INT,
+      img_url VARCHAR(255)
+    );
+    """
+    connection = None
+    try:
+        connection = get_db_connection()
+        if not connection:
+            print("✗ ERROR: Could not connect to DB to initialize schema.")
+            return
+
+        cursor = connection.cursor()
+        cursor.execute(create_table_sql)
+        connection.commit()
+        cursor.close()
+        print("✓ Database schema verified and initialized.")
+    except MySQLError as e:
+        print(f"✗ Error initializing database schema: {e}")
+    finally:
+        if connection:
+            connection.close()
+
 def get_db_connection():
+    # ... (This function is perfect, no changes needed) ...
     try:
         connection = mysql.connector.connect(**db_config)
         return connection
@@ -221,13 +234,14 @@ def check_db_health():
     except Exception:
         return False
 
-init_db()
-init_s3()
-
 if __name__ == "__main__":
     print("=" * 50)
     print("Starting Flask application...")
     print(f"DB_HOST: {os.environ.get('DB_HOST', 'localhost')}")
     print(f"S3_BUCKET_NAME: {S3_BUCKET_NAME}")
     print("=" * 50)
+    init_db()
+    init_s3()
+
+    # You can use Flask's server for dev, or Gunicorn for prod
     app.run(debug=True, host="0.0.0.0")
