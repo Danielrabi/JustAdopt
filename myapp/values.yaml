@@ -8,6 +8,12 @@ flask:
     type: ClusterIP
     port: 80
   containerPort: 5000
+  env:
+    DB_HOST: "default-db-host"
+    DB_USER: "default-user"
+    DB_PASSWORD: "default-password"
+    DB_NAME: "default-db-name"
+    S3_BUCKET_NAME: "default-s3-bucket"
   resources:
     requests:
       cpu: "100m"
