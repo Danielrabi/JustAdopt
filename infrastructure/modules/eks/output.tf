@@ -34,8 +34,3 @@ output "lb_controller_role_arn" {
   description = "ARN of IAM role for AWS Load Balancer Controller"
   value       = module.lb_controller_irsa.iam_role_arn
 }
-
-output "cluster_security_group_id" {
-  description = "The security group ID for the EKS cluster"
-  value       = module.eks.cluster_security_group_id
-}

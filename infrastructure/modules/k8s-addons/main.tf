@@ -17,20 +17,6 @@ data "aws_eks_cluster_auth" "cluster" {
   name = var.cluster_name
 }
 
-data "aws_secretsmanager_secret_version" "db_password" {
-  secret_id = var.db_password_secret_arn
-}
-
-resource "aws_security_group_rule" "allow_eks_to_rds" {
-  type                     = "ingress"
-  from_port                = 3306
-  to_port                  = 3306
-  protocol                 = "tcp"
-  source_security_group_id = var.eks_cluster_security_group_id
-  security_group_id        = var.rds_security_group_id
-  description              = "Allow MySQL traffic from EKS cluster"
-}
-
 resource "kubernetes_annotations" "gp2_default" {
   api_version = "storage.k8s.io/v1"
   kind        = "StorageClass"
@@ -116,22 +102,6 @@ resource "kubernetes_manifest" "my_app" {
             {
               name  = "flask.serviceAccount.roleArn"
               value = tostring(module.flask_s3_irsa.iam_role_arn)
-            },
-            {
-              name  = "flask.env.DB_HOST"
-              value = var.db_endpoint
-            },
-            {
-              name  = "flask.env.DB_NAME"
-              value = var.db_name
-            },
-            {
-              name  = "flask.env.DB_USER"
-              value = var.db_username
-            },
-            {
-              name  = "flask.env.DB_PASSWORD"
-              value = data.aws_secretsmanager_secret_version.db_password.secret_string
             }
           ]
         }
