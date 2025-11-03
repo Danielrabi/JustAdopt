@@ -3,7 +3,7 @@ terraform {
 }
 
 inputs = {
-  name   = "dev-vpc"
+  name   = "prod-vpc"
   region = "us-east-1"
-  env    = "dev"
+  env    = "prod"
 }

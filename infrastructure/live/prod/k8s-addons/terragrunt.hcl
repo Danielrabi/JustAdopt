@@ -3,7 +3,7 @@ terraform {
 }
 
 dependency "vpc"{
-  config_path = "../../../foundation/dev/vpc"
+  config_path = "../../../foundation/prod/vpc"
 }
 
 dependency "eks" {
@@ -11,15 +11,15 @@ dependency "eks" {
 }
 
 dependency "s3" {
-  config_path = "../../../foundation/dev/s3"
+  config_path = "../../../foundation/prod/s3"
 }
 
 dependency "rds" {
-  config_path = "../../../foundation/dev/rds"
+  config_path = "../../../foundation/prod/rds"
 }
 
 inputs = {
-    env = "dev"
+    env = "prod"
     branch = "helm"
     repourl = "https://github.com/Danielrabi/JustAdopt.git"
     host = dependency.eks.outputs.cluster_endpoint

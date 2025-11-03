@@ -8,7 +8,7 @@ dependency "vpc" {
 }
 
 inputs = {
-  env = "dev"
+  env = "prod"
   db_name = "dog_list"
   instance_class = "db.t3.micro"
   allocated_storage = 20
