@@ -16,11 +16,10 @@ module "vpc" {
     Environment = var.env
     terraform   = "true"
   }
+  # Tags for the ingress to mount alb to
   public_subnet_tags = {
     "kubernetes.io/role/elb" = "1"
   }
-
-  # This is good practice for the private subnets
   private_subnet_tags = {
     "kubernetes.io/role/internal-elb" = "1"
   }

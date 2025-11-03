@@ -1,8 +1,6 @@
-# Create a unique, private S3 bucket
+# unique bucket name
 resource "aws_s3_bucket" "app_bucket" {
-  # We add a random suffix to ensure the bucket name is globally unique
   bucket_prefix = "${var.bucket_name_prefix}-${var.env}-"
-  
   force_destroy = true
   lifecycle {
     prevent_destroy = false

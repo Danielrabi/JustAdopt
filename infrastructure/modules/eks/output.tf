@@ -15,11 +15,6 @@ output "cluster_id" {
   value       = module.eks.cluster_id
 }
 
-output "configure_kubectl" {
-  description = "Command to configure kubectl"
-  value       = "aws eks update-kubeconfig --region ${var.region} --name ${module.eks.cluster_name}"
-}
-
 output "oidc_provider_arn" {
   description = "OIDC provider ARN (needed for IRSA)"
   value       = module.eks.oidc_provider_arn

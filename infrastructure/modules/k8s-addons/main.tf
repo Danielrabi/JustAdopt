@@ -17,6 +17,7 @@ data "aws_eks_cluster_auth" "cluster" {
   name = var.cluster_name
 }
 
+# allows cluster to use EBS volumes
 resource "kubernetes_annotations" "gp2_default" {
   api_version = "storage.k8s.io/v1"
   kind        = "StorageClass"
@@ -30,9 +31,6 @@ resource "kubernetes_annotations" "gp2_default" {
   }
 }
 
-# ... (near your other helm/kubernetes providers) ...
-
-# --- 1. DEFINE THE S3 POLICY FOR FLASK ---
 data "aws_iam_policy_document" "flask_s3_policy" {
   statement {
     actions = [
@@ -42,7 +40,7 @@ data "aws_iam_policy_document" "flask_s3_policy" {
     ]
     resources = [
       var.bucket_arn,
-      "${var.bucket_arn}/*" # Allow access to objects *within* the bucket
+      "${var.bucket_arn}/*"
     ]
   }
   statement {
@@ -51,13 +49,13 @@ data "aws_iam_policy_document" "flask_s3_policy" {
   }
 }
 
-# Read the database password from AWS Secrets Manager
+# database password
 data "aws_secretsmanager_secret_version" "db_password" {
   secret_id = var.db_password_secret_arn
 }
 
 resource "aws_iam_policy" "flask_s3_policy" {
-  name   = "${var.cluster_name}-flask-s3-policy"
+  name = "${var.cluster_name}-flask-s3-policy"
   policy = data.aws_iam_policy_document.flask_s3_policy.json
 }
 
@@ -72,57 +70,59 @@ module "flask_s3_irsa" {
 
   oidc_providers = {
     main = {
-      provider_arn               = var.oidc_provider
+      provider_arn = var.oidc_provider
       namespace_service_accounts = ["default:${var.env}-app-myapp-flask-sa"]
     }
   }
 
   tags = {
     Environment = var.env
-    Terraform   = "true"
+    Terraform = "true"
   }
 }
 
+# Deploy the Flask app via ArgoCD
 resource "kubernetes_manifest" "my_app" {
 
   manifest = {
     apiVersion = "argoproj.io/v1alpha1"
-    kind       = "Application"
+    kind = "Application"
     metadata = {
-      name      = "${var.env}-app"
+      name = "${var.env}-app"
       namespace = "argocd"
     }
     spec = {
       project = "default"
       source = {
-        repoURL        = var.repourl
+        repoURL = var.repourl
         targetRevision = var.branch
-        path           = "myapp"
+        path = "myapp"
         helm = {
+          # Inject environment variables to the Flask app
           parameters = [
             {
-              name  = "flask.env.S3_BUCKET_NAME"
+              name = "flask.env.S3_BUCKET_NAME"
               value = var.bucket_name
             },
             {
-              name  = "flask.serviceAccount.roleArn"
+              name = "flask.serviceAccount.roleArn"
               value = tostring(module.flask_s3_irsa.iam_role_arn)
             },
             {
-              name  = "flask.env.DB_HOST"
+              name = "flask.env.DB_HOST"
               value = var.db_endpoint
             },
             {
-              name  = "flask.env.DB_USER"
+              name = "flask.env.DB_USER"
               value = var.db_username
             },
             {
-              name  = "flask.env.DB_PASSWORD"
+              name = "flask.env.DB_PASSWORD"
               value = data.aws_secretsmanager_secret_version.db_password.secret_string
             },
             {
-              name  = "flask.env.DB_NAME"
-              value = "dog_list" # Hardcode to match the RDS DB name
+              name = "flask.env.DB_NAME"
+              value = "dog_list"
             }
           ]
         }
@@ -141,37 +141,37 @@ resource "kubernetes_manifest" "my_app" {
   }
 }
 
-# Install AWS Load Balancer Controller via Helm
+# Install AWS Load Balancer Controller
 resource "helm_release" "aws_load_balancer_controller" {
-  name       = "aws-load-balancer-controller"
+  name = "aws-load-balancer-controller"
   repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
-  version    = "1.8.1"
+  chart = "aws-load-balancer-controller"
+  namespace = "kube-system"
+  version = "1.8.1"
 
   set = [
     {
-      name  = "clusterName"
+      name = "clusterName"
       value = var.cluster_name
     },
     {
-      name  = "serviceAccount.create"
+      name = "serviceAccount.create"
       value = "true"
     },
     {
-      name  = "serviceAccount.name"
+      name = "serviceAccount.name"
       value = "aws-load-balancer-controller"
     },
     {
-      name  = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
+      name = "serviceAccount.annotations.eks\\.amazonaws\\.com/role-arn"
       value = var.lb_controller_irsa
     },
     {
-      name  = "region"
+      name = "region"
       value = var.region
     },
     {
-      name  = "vpcId"
+      name = "vpcId"
       value = var.vpc_id
     }
   ]
@@ -179,16 +179,16 @@ resource "helm_release" "aws_load_balancer_controller" {
 
 # Install NGINX Ingress Controller via Helm
 resource "helm_release" "nginx_ingress_controller" {
-  name       = "ingress-nginx"
+  name = "ingress-nginx"
   repository = "https://kubernetes.github.io/ingress-nginx"
-  chart      = "ingress-nginx"
-  namespace  = "ingress-nginx"
+  chart = "ingress-nginx"
+  namespace = "ingress-nginx"
   create_namespace = true
-  version    = "4.10.1"
+  version = "4.10.1"
 
   set = [
     {
-      name  = "controller.service.type"
+      name = "controller.service.type"
       value = "NodePort"
     },
     {
@@ -206,9 +206,8 @@ resource "helm_release" "nginx_ingress_controller" {
   ]
 }
 
-# This is the "ALB" for NGINX
+# Create an Ingress resource that uses the AWS ALB to route traffic to the NGINX Ingress Controller
 resource "kubernetes_manifest" "nginx_ingress_alb" {
-  # Depends on both controllers being ready
   depends_on = [
     helm_release.aws_load_balancer_controller,
     helm_release.nginx_ingress_controller
@@ -221,17 +220,12 @@ resource "kubernetes_manifest" "nginx_ingress_alb" {
       "name" = "nginx-controller-alb"
       "namespace" = "ingress-nginx"
       "annotations" = {
-        # This line tells the AWS ALB Controller to handle this Ingress
         "kubernetes.io/ingress.class" = "alb"
-        # Specify target type as IP to work with NGINX NodePort service
         "alb.ingress.kubernetes.io/target-type" = "ip"
-        
-        # Specify it's an internet-facing ALB
         "alb.ingress.kubernetes.io/scheme" = "internet-facing"
       }
     }
     "spec" = {
-      # This line specifies the AWS ALB controller
       "ingressClassName" = "alb"
       "rules" = [
         {
@@ -242,7 +236,7 @@ resource "kubernetes_manifest" "nginx_ingress_alb" {
                 "pathType" = "Prefix"
                 "backend" = {
                   "service" = {
-                    # This must match the service name created by the nginx helm chart
+                    # Name must match the NGINX Ingress Controller from the helm chart
                     "name" = "ingress-nginx-controller" 
                     "port" = {
                       "name" = "http" 
