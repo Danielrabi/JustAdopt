@@ -63,5 +63,7 @@ cd ../../../../
 aws eks update-kubeconfig --region us-east-1 --name prod-eks
 
 echo "Terragrunt run for production environment completed successfully."
+echo "Please wait a moment for the load balancer to be assigned an address..."
+sleep 30
 echo "Connect at this address:"
-echo $(kubectl get ingress nginx-controller-alb -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+echo "http://$(kubectl get ingress nginx-controller-alb -n ingress-nginx -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')"
